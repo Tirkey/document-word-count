@@ -3,6 +3,8 @@ const _KEY =
 const _MAINFILE = "http://norvig.com/big.txt";
 const _LOOKUP = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup";
 
+let wordsResponseGlobal = [];
+
 const express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
@@ -18,11 +20,6 @@ async function fetchMyFile() {
 }
 
 app.get("/txt_response", async (req, res) => {
-  // const fileUrl = "http://norvig.com/big.txt";
-  // const resp = await fetch(fileUrl);
-  // const textResp = await resp.text();
-  // res.write(textResp);
-
   fetchMyFile()
     .then((doc) => {
       /**get all words in document */
@@ -51,24 +48,20 @@ app.get("/txt_response", async (req, res) => {
         .slice(0, 10);
     })
     .then((response) => {
-      /**look up a words pos and syn */
-
+      // [{},{}]
+      wordsResponseGlobal = response;
       //let promises = response;
       let promises = [];
       for (let i = 0; i < response.length; i++) {
         let queryParams =
             "?key=" + _KEY + "&lang=en-en&text=" + response[i].word,
           finalCall = _LOOKUP + queryParams;
-        console.log(`word is : ${response[i].word}.`);
         promises.push(fetch(finalCall));
       }
+
       return Promise.all(promises);
     })
     .then((response) => {
-      /** we get the output for all top 10 words
-       * here we have to think of combining the object with word-and-count and details fetched from lookup.json
-       * TODO: combine response from previous response
-       */
       return Promise.all(
         response.map((ijk) => {
           return ijk.json();
@@ -76,7 +69,17 @@ app.get("/txt_response", async (req, res) => {
       );
     })
     .then((response) => {
-      res.json({ result: response });
+      /** : combine response from top 10 words response & lookup fetch of each word response : */
+      let finalSummarizedOutput = {};
+      for (let z = 0; z < response.length; z++) {
+        let modPos = response[z].def[0] ? response[z].def[0].pos : "";
+        let modTr = response[z].def[0] ? response[z].def[0].tr : [];
+        finalSummarizedOutput[wordsResponseGlobal[z].word] = {
+          count: wordsResponseGlobal[z].output.count,
+          details: { pos: modPos, synonyms: modTr },
+        };
+      }
+      res.json(finalSummarizedOutput);
     });
 });
 
