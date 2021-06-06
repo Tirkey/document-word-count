@@ -1,14 +1,16 @@
-# This is a node/JS project.
+# Overview
 
-# The purpose of the application is to fetch an external document file.
+This is a node/JS project.
 
-# The code then finds the top ten words in the document based on the frequency of words in the doc, numbers like 1,123 etc. are ignored here.
+The purpose of the application is to fetch an external document file.
 
-# The code then finds the position of speech(pos) and synonyms of each of these top ten words from a dictionary.
+The code then finds the top ten words in the document based on the frequency of words in the doc, numbers like 1,123 etc. are ignored here.
 
-# The end user sees the final output as a JSON of words with its pos and synonyms.
+The code then finds the position of speech(pos) and synonyms of each of these top ten words from a dictionary.
 
-# The JSON structure looks like:
+The end user sees the final output as a JSON of words with its pos and synonyms.
+
+The JSON structure looks like:
 
 {
 {
